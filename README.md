@@ -182,6 +182,7 @@ This will remove the generated server binary.
 
 We welcome contributions to improve this project! If you'd like to contribute:
 
+```md
 1. Fork the repository.
 2. Create a new branch (git checkout -b feature-name).
 3. Make your changes.
@@ -189,6 +190,7 @@ We welcome contributions to improve this project! If you'd like to contribute:
 5. Push to the branch (git push origin feature-name).
 6. Open a pull request.
 7. Please ensure your code follows the Go idioms and includes tests where applicable.
+```
 
 ### Guidelines
 
@@ -197,4 +199,5 @@ We welcome contributions to improve this project! If you'd like to contribute:
 - Follow the project’s code conventions.
 - Please include tests for new features or bug fixes.
 - If your changes affect the documentation, update the README.
-- We appreciate your contributions, and thank you for improving **go-graphql-gateway**!
+
+We appreciate your contributions, and thank you for improving **go-graphql-gateway**!
