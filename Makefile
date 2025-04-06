@@ -17,7 +17,7 @@ gql_generate:
 # 2. Generate protobuf/gRPC Go code
 #    This requires protoc to be installed (along with the protoc-gen-go and protoc-gen-go-grpc plugins).
 protoc_install:
-	brew install protobuf
+	@brew install protobuf
 
 protoc_generate: protoc_setup
 	@echo "Generating protobuf code..."
