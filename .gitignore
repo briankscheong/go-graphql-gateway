@@ -1,0 +1,45 @@
+# Build artifacts
+*.exe
+*.out
+*.test
+*.prof
+*.so
+
+# Go module files
+/vendor/
+
+# IDE/Editor settings
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# Log files
+*.log
+
+# Docker
+*.dockerfile
+docker-compose.override.yml
+
+# Dependency management tools
+Gopkg.lock
+Gopkg.toml
+
+# Test coverage
+*.cov
+coverage.out
+
+# Generated files
+*.generated.go
+*_gen.go
+
+# Custom folders
+proto
+temp
+main.go
