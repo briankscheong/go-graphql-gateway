@@ -1,0 +1,132 @@
+type Namespace {
+  name: String!
+  pods(labelSelector: String): [Pod!]!
+  deployments(labelSelector: String): [Deployment!]!
+  services(labelSelector: String): [Service!]!
+}
+
+type Metadata {
+  name: String!
+  namespace: String
+  labels: JSON
+  annotations: JSON
+  creationTimestamp: String
+  uid: String
+}
+
+type Pod {
+  metadata: Metadata!
+  status: PodStatus!
+  spec: PodSpec
+}
+
+type PodStatus {
+  phase: String
+  conditions: [PodCondition]
+  hostIP: String
+  podIP: String
+  startTime: String
+  containerStatuses: [ContainerStatus]
+}
+
+type PodCondition {
+  type: String
+  status: String
+  lastProbeTime: String
+  lastTransitionTime: String
+}
+
+type ContainerStatus {
+  name: String
+  ready: Boolean
+  restartCount: Int
+  image: String
+}
+
+type PodSpec {
+  containers: [ContainerSpec]
+  nodeName: String
+  serviceAccountName: String
+}
+
+type ContainerSpec {
+  name: String
+  image: String
+  command: [String]
+  args: [String]
+}
+
+type Deployment {
+  metadata: Metadata!
+  spec: DeploymentSpec
+  status: DeploymentStatus
+}
+
+type DeploymentSpec {
+  replicas: Int
+  selector: LabelSelector
+  template: PodTemplateSpec
+}
+
+type DeploymentStatus {
+  availableReplicas: Int
+  readyReplicas: Int
+  updatedReplicas: Int
+}
+
+type PodTemplateSpec {
+  metadata: Metadata
+  spec: PodSpec
+}
+
+type LabelSelector {
+  matchLabels: JSON
+}
+
+type Service {
+  metadata: Metadata!
+  spec: ServiceSpec
+  status: ServiceStatus
+}
+
+type ServiceSpec {
+  type: String
+  selector: JSON
+  ports: [ServicePort]
+}
+
+type ServicePort {
+  name: String
+  protocol: String
+  port: Int
+  targetPort: String
+}
+
+type ServiceStatus {
+  loadBalancer: LoadBalancerStatus
+}
+
+type LoadBalancerStatus {
+  ingress: [LoadBalancerIngress]
+}
+
+type LoadBalancerIngress {
+  ip: String
+  hostname: String
+}
+
+input CreatePodInput {
+  namespace: String!
+  name: String!
+  containers: [ContainerInput!]!
+  labels: JSON
+}
+
+input ContainerInput {
+  name: String!
+  image: String!
+  command: [String]
+  args: [String]
+}
+
+scalar JSON

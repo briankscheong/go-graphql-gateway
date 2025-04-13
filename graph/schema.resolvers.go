@@ -44,14 +44,49 @@ func (r *mutationResolver) DeleteTodo(ctx context.Context, input model.DeleteTod
 	return deleteTodo, nil
 }
 
+// CreatePod is the resolver for the createPod field.
+func (r *mutationResolver) CreatePod(ctx context.Context, input model.CreatePodInput) (*model.Pod, error) {
+	panic(fmt.Errorf("not implemented: CreatePod - createPod"))
+}
+
+// DeletePod is the resolver for the deletePod field.
+func (r *mutationResolver) DeletePod(ctx context.Context, namespace string, name string) (bool, error) {
+	panic(fmt.Errorf("not implemented: DeletePod - deletePod"))
+}
+
 // Todos is the resolver for the todos field.
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 	return r.todos, nil
 }
 
-// User is the resolver for the user field.
-func (r *todoResolver) User(ctx context.Context, obj *model.Todo) (*model.User, error) {
-	return &model.User{ID: obj.UserID, Name: "user " + obj.UserID}, nil
+// Namespaces is the resolver for the namespaces field.
+func (r *queryResolver) Namespaces(ctx context.Context) ([]*model.Namespace, error) {
+	panic(fmt.Errorf("not implemented: Namespaces - namespaces"))
+}
+
+// Namespace is the resolver for the namespace field.
+func (r *queryResolver) Namespace(ctx context.Context, name string) (*model.Namespace, error) {
+	panic(fmt.Errorf("not implemented: Namespace - namespace"))
+}
+
+// Pod is the resolver for the pod field.
+func (r *queryResolver) Pod(ctx context.Context, namespace string, name string) (*model.Pod, error) {
+	panic(fmt.Errorf("not implemented: Pod - pod"))
+}
+
+// Pods is the resolver for the pods field.
+func (r *queryResolver) Pods(ctx context.Context, namespace string, labelSelector *string) ([]*model.Pod, error) {
+	panic(fmt.Errorf("not implemented: Pods - pods"))
+}
+
+// Deployments is the resolver for the deployments field.
+func (r *queryResolver) Deployments(ctx context.Context, namespace string, labelSelector *string) ([]*model.Deployment, error) {
+	panic(fmt.Errorf("not implemented: Deployments - deployments"))
+}
+
+// Services is the resolver for the services field.
+func (r *queryResolver) Services(ctx context.Context, namespace string, labelSelector *string) ([]*model.Service, error) {
+	panic(fmt.Errorf("not implemented: Services - services"))
 }
 
 // Mutation returns MutationResolver implementation.
@@ -60,9 +95,5 @@ func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-// Todo returns TodoResolver implementation.
-func (r *Resolver) Todo() TodoResolver { return &todoResolver{r} }
-
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
-type todoResolver struct{ *Resolver }
