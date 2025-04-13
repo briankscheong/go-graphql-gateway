@@ -1,5 +1,3 @@
-# Makefile: Simplify common developer tasks
-
 #
 #
 # - gqlgen targets
@@ -96,15 +94,16 @@ k3d_cleanup:
 	sudo rm $(where k3d)
 
 
+# https://github.com/k3d-io/k3d/issues/1449#issuecomment-2154672702
+K3D_FIX_DNS=0
 CLUSTER_NAME?=cluster-one
 REGISTRY_PORT?=5432
 KUBECONFIG_PATH=$(HOME)/.kube/config
-K3D_FIX_DNS=0 # https://github.com/k3d-io/k3d/issues/1449#issuecomment-2154672702
 create_k3d_cluster:
 	@echo "Creating k3d cluster..."
-	K3D_FIX_DNS=0 k3d cluster create $(CLUSTER_NAME) --servers 3 --agents 3 --api-port 0.0.0.0:6550 --registry-create $(CLUSTER_NAME)-registry:0.0.0.0:$(REGISTRY_PORT) --wait --timeout 
+	K3D_FIX_DNS=0 k3d cluster create $(CLUSTER_NAME) --servers 3 --agents 3 --api-port 0.0.0.0:6550 --registry-create $(CLUSTER_NAME)-registry:0.0.0.0:$(REGISTRY_PORT) --wait --timeout 120s 
 
-delete_k3s_cluster:
+delete_k3d_cluster:
 	@echo "Deleting k3d cluster..."
 	k3d cluster delete $(CLUSTER_NAME)
 
