@@ -11,6 +11,8 @@ import (
 	"math/big"
 
 	"github.com/briankscheong/go-graphql-gateway/graph/model"
+	"github.com/rs/zerolog/log"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // CreateTodo is the resolver for the createTodo field.
@@ -61,7 +63,19 @@ func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 
 // Namespaces is the resolver for the namespaces field.
 func (r *queryResolver) Namespaces(ctx context.Context) ([]*model.Namespace, error) {
-	panic(fmt.Errorf("not implemented: Namespaces - namespaces"))
+	var namespaces []*model.Namespace
+	nslist, err := r.K8sClient.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Err(err).Msgf("Error listing namespaces: %s", err.Error())
+		return nil, err
+	}
+
+	for _, ns := range nslist.Items {
+		namespaces = append(namespaces, &model.Namespace{
+			Name: ns.Name,
+		})
+	}
+	return namespaces, nil
 }
 
 // Namespace is the resolver for the namespace field.

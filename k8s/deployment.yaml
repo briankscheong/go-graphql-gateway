@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: graphql-server
+  namespace: graphql-server-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: graphql-server
+  template:
+    metadata:
+      labels:
+        app: graphql-server
+    spec:
+      serviceAccountName: graphql-server-sa
+      containers:
+        - name: graphql-server
+          image: cluster-one-registry:5432/go-graphql-gateway:20250413151215
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080

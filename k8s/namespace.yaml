@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: graphql-server-gateway
+  annotations:
+    homelab.bc.com/managed: "true"
+    homelab.bc.com/application: graphql-server

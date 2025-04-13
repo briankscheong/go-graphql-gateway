@@ -4,7 +4,7 @@
 ###############################
 MODULE_NAME?=github.com/briankscheong
 gqlgen_setup:
-	@dir_name=$$(basename $$PWD)
+	@dir_name="$$(basename "$$PWD")"; \
 	@go mod init $(MODULE_NAME)/$$dir_name
 	@printf '//go:build tools\npackage tools\nimport (_ "github.com/99designs/gqlgen"\n _ "github.com/99designs/gqlgen/graphql/introspection")' | gofmt > tools.go
 	@go mod tidy
@@ -52,16 +52,6 @@ clean:
 
 #
 #
-# - docker targets
-###############################
-build_container:
-	@docker build . --tag go-graphql-gateway:latest
-
-run_container: build_container
-	@docker run -it -p 8080:8080 go-graphql-gateway:latest
-
-#
-#
 # - brew targets
 ###############################
 brew_k3d_setup:
@@ -93,7 +83,6 @@ k3d_cleanup:
 	sudo rm $(where kubectl)
 	sudo rm $(where k3d)
 
-
 # https://github.com/k3d-io/k3d/issues/1449#issuecomment-2154672702
 K3D_FIX_DNS=0
 CLUSTER_NAME?=cluster-one
@@ -109,3 +98,41 @@ delete_k3d_cluster:
 
 add_kubeconfig:
 	k3d kubeconfig merge $(CLUSTER_NAME) --kubeconfig-switch-context
+
+#
+#
+# - docker targets
+###############################
+IMAGE_TAG?=$(shell date +%Y%m%d%H%M%S)
+build_container:
+	@dir_name="$$(basename "$$PWD")"; \
+	@docker build . --tag $$dir_name:$(IMAGE_TAG)
+
+run_container:
+	@dir_name="$$(basename "$$PWD")"; \
+	docker build . --tag $$dir_name:$(IMAGE_TAG); \
+	@docker run -it -p 8080:8080 $$dir_name:$(IMAGE_TAG)
+
+# Build image and push to dedicated k3d-managed registry 
+build_push_image:
+	@dir_name="$$(basename "$$PWD")"; \
+	echo "building image $$dir_name:$(IMAGE_TAG)"; \
+	docker build . --tag $$dir_name:$(IMAGE_TAG); \
+	docker tag $$dir_name:$(IMAGE_TAG) $(CLUSTER_NAME)-registry.localhost:$(REGISTRY_PORT)/$$dir_name:$(IMAGE_TAG); \
+	docker push $(CLUSTER_NAME)-registry.localhost:$(REGISTRY_PORT)/$$dir_name:$(IMAGE_TAG);
+
+#
+#
+# - k8s targets
+###############################
+deploy_server:
+	kubectl apply -f k8s/namespace.yaml
+	kubectl apply -f k8s/rbac.yaml
+	kubectl apply -f k8s/service.yaml
+	kubectl apply -f k8s/deployment.yaml
+
+cleanup_server:
+	kubectl delete -f k8s/deployment.yaml
+	kubectl delete -f k8s/service.yaml
+	kubectl delete -f k8s/rbac.yaml
+	kubectl delete -f k8s/namespace.yaml
