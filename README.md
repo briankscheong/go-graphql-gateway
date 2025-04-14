@@ -160,9 +160,9 @@ This will deploy all the Kubernetes configurations and RBAC permissions needed f
 
 ## Running the Server Locally
 
-[!NOTE]
-Building and running the server outside of a Kubernetes cluster will result in limited functionality.
-Features that require interaction with the cluster (such as querying pods, deployments, or services) will not work unless the server is deployed inside the cluster.
+> [!NOTE]
+> Building and running the server outside of a Kubernetes cluster will result in limited functionality.
+> Features that require interaction with the cluster (such as querying pods, deployments, or services) will not work unless the server is deployed inside the cluster.
 
 Kindly refer to the deployment steps above to ensure the server is properly running within your Kubernetes environment for full functionality.
 
