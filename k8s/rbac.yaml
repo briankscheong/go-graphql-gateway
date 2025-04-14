@@ -9,9 +9,40 @@ kind: ClusterRole
 metadata:
   name: graphql-server-cr
 rules:
-- apiGroups: [""]
-  resources: ["pods", "services", "endpoints", "nodes", "namespaces", "configmaps", "secrets", "persistentvolumes", "persistentvolumeclaims", "events", "limitranges", "resourcequotas", "replicationcontrollers", "serviceaccounts", "bindings"]
-  verbs: ["get", "list", "watch"]
+  # Core API group ("")
+  - apiGroups: [""]
+    resources:
+      - pods
+      - services
+      - endpoints
+      - nodes
+      - namespaces
+      - configmaps
+      - secrets
+      - persistentvolumes
+      - persistentvolumeclaims
+      - events
+      - limitranges
+      - resourcequotas
+      - replicationcontrollers
+      - serviceaccounts
+      - bindings
+    verbs: ["get", "list", "watch"]
+
+  # Apps API group (deployments, replicasets, statefulsets, daemonsets)
+  - apiGroups: ["apps"]
+    resources:
+      - deployments
+      - replicasets
+      - statefulsets
+      - daemonsets
+    verbs: ["get", "list", "watch"]
+
+  # Events API (events.k8s.io) - new event API
+  - apiGroups: ["events.k8s.io"]
+    resources:
+      - events
+    verbs: ["get", "list", "watch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding

@@ -24,26 +24,33 @@ func main() {
 		port = defaultPort
 	}
 
+	var srv *handler.Server
+
 	// Get k8s cluster config
-	log.Info().Msg("Getting in-cluster config to initialize clienset...")
+	log.Info().Msg("Getting in-cluster config to initialize clientset...")
 	config, err := rest.InClusterConfig()
 	if err != nil {
-		log.Err(err).Msg("In-cluster config not found")
-		panic(err)
+		log.Err(err).Msg("In-cluster config not found. GraphQL server is not deployed in a kubernetes cluster.")
+		srv = handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{
+			K8sClient: nil,
+		}}))
 	}
 
-	log.Info().Msg("Successfully retrieved in-cluster config. Using config to create Kubernetes clienset...")
+	if err == nil {
+		log.Info().Msg("Successfully retrieved in-cluster config. Using config to create Kubernetes clientset...")
+		// Create new k8s clientset
+		clientset, err := kubernetes.NewForConfig(config)
+		if err != nil {
+			log.Err(err).Msg("Kubernetes clientset failed to be created")
+			panic(err)
+		}
 
-	// Create new k8s clientset
-	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		panic(err)
+		log.Info().Msg("Kubernetes clientset created successfully")
+
+		srv = handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{
+			K8sClient: clientset,
+		}}))
 	}
-	log.Info().Msg("Successfully created Kubernetes clienset")
-
-	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{
-		K8sClient: clientset,
-	}}))
 
 	srv.AddTransport(transport.Options{})
 	srv.AddTransport(transport.GET{})

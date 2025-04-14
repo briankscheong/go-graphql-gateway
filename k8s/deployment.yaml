@@ -16,7 +16,7 @@ spec:
       serviceAccountName: graphql-server-sa
       containers:
         - name: graphql-server
-          image: cluster-one-registry:5432/go-graphql-gateway:20250413151215
+          image: cluster-one-registry:5432/go-graphql-gateway:20250413235104
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080

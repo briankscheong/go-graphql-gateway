@@ -43,4 +43,5 @@ coverage.out
 proto
 temp
 main.go
+*.bak
 *temp*

@@ -113,13 +113,18 @@ run_container:
 	docker build . --tag $$dir_name:$(IMAGE_TAG); \
 	@docker run -it -p 8080:8080 $$dir_name:$(IMAGE_TAG)
 
-# Build image and push to dedicated k3d-managed registry 
+# Build image and push to dedicated k3d-managed registry and
+# Update deployment image tag
 build_push_image:
 	@dir_name="$$(basename "$$PWD")"; \
-	echo "building image $$dir_name:$(IMAGE_TAG)"; \
-	docker build . --tag $$dir_name:$(IMAGE_TAG); \
-	docker tag $$dir_name:$(IMAGE_TAG) $(CLUSTER_NAME)-registry.localhost:$(REGISTRY_PORT)/$$dir_name:$(IMAGE_TAG); \
-	docker push $(CLUSTER_NAME)-registry.localhost:$(REGISTRY_PORT)/$$dir_name:$(IMAGE_TAG);
+	image_tag="$(IMAGE_TAG)"; \
+	image_repo="$(CLUSTER_NAME)-registry.localhost:$(REGISTRY_PORT)/$$dir_name:$$image_tag"; \
+	echo "building image $$dir_name:$$image_tag..."; \
+	docker build . --tag $$dir_name:$$image_tag; \
+	docker tag $$dir_name:$$image_tag $$image_repo; \
+	docker push $$image_repo; \
+	echo "Updating image tag in k8s/deployment.yaml to $$image_tag..."; \
+	sed -i.bak -E "s|(image: .+):[^:]+$$|\1:$$image_tag|" k8s/deployment.yaml
 
 #
 #

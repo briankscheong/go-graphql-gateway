@@ -14,9 +14,13 @@
     - [Prerequisites](#prerequisites)
     - [Clone the Repository](#clone-the-repository)
     - [Install Dependencies](#install-dependencies)
-  - [Running the Application](#running-the-application)
+  - [Running the Server in a Cluster](#running-the-server-in-a-cluster)
+    - [Setup a k3d cluster](#setup-a-k3d-cluster)
+    - [Build and Push Container Image](#build-and-push-container-image)
+    - [Deploy GraphQL Server to k3d Cluster](#deploy-graphql-server-to-k3d-cluster)
+  - [Running the Server Locally](#running-the-server-locally)
     - [Build the Go Server](#build-the-go-server)
-    - [Run the Application Locally](#run-the-application-locally)
+    - [Run the Server](#run-the-server)
     - [Docker Setup](#docker-setup)
   - [Development Workflow](#development-workflow)
     - [Generating GraphQL Code](#generating-graphql-code)
@@ -114,9 +118,53 @@ go mod tidy
 
 This command will download and install any missing dependencies.
 
+```bash
+make gql_generate
+```
+
+This command will generate the Go model schema using the GraphQL schema definition.
+
 ---
 
-## Running the Application
+## Running the Server in a Cluster
+
+### Setup a k3d cluster
+
+To setup a simple k3d cluster with a managed registry, run the following command:
+
+```bash
+make create_k3d_cluster
+```
+
+### Build and Push Container Image
+
+To build and push the container image to the managed registry, run:
+
+```bash
+make build_push_image
+```
+
+This command will setup the container in the registry and automatically update the `deployment.yaml` file with the new image tag.
+
+### Deploy GraphQL Server to k3d Cluster
+
+To deploy the server to the cluster, run:
+
+```bash
+make deploy_server
+```
+
+This will deploy all the Kubernetes configurations and RBAC permissions needed for the server to be up and running.
+
+**You can now port forward the server to your localhost and try it out!**
+
+## Running the Server Locally
+
+[!NOTE]
+Building and running the server outside of a Kubernetes cluster will result in limited functionality.
+Features that require interaction with the cluster (such as querying pods, deployments, or services) will not work unless the server is deployed inside the cluster.
+
+Kindly refer to the deployment steps above to ensure the server is properly running within your Kubernetes environment for full functionality.
 
 ### Build the Go Server
 
@@ -128,9 +176,9 @@ make build
 
 This will compile the Go server into an executable named server.
 
-### Run the Application Locally
+### Run the Server
 
-To run the application locally, use the run target from the Makefile. This will build the server and then run it:
+To run the server locally, use the run target from the Makefile. This will build the server and then run it:
 
 ```bash
 make run
@@ -140,7 +188,7 @@ The server will start, and you can access the GraphQL endpoint on [http://localh
 
 ### Docker Setup
 
-If you'd like to run the application in a container, you can build and run it using Docker.
+If you'd like to run the server in a container, you can build and run it using Docker.
 
 To build the Docker container:
 
@@ -154,7 +202,7 @@ To run the Docker container:
 make run_container
 ```
 
-This will start the application inside a Docker container and expose port 8080 to the host machine.
+This will start the server inside a Docker container and expose port 8080 to the host machine.
 
 ## Development Workflow
 

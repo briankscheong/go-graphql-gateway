@@ -11,6 +11,7 @@ import (
 	"math/big"
 
 	"github.com/briankscheong/go-graphql-gateway/graph/model"
+	"github.com/briankscheong/go-graphql-gateway/util"
 	"github.com/rs/zerolog/log"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -66,41 +67,115 @@ func (r *queryResolver) Namespaces(ctx context.Context) ([]*model.Namespace, err
 	var namespaces []*model.Namespace
 	nslist, err := r.K8sClient.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		log.Err(err).Msgf("Error listing namespaces: %s", err.Error())
+		log.Err(err).Msg("Error listing namespaces")
 		return nil, err
 	}
 
 	for _, ns := range nslist.Items {
-		namespaces = append(namespaces, &model.Namespace{
-			Name: ns.Name,
-		})
+		namespace, err := r.Namespace(ctx, ns.Name)
+		if err != nil {
+			log.Err(err).Str("Namespace", ns.Name).Msg("Error getting objects in namespace")
+			return nil, err
+		}
+		namespaces = append(namespaces, namespace)
 	}
 	return namespaces, nil
 }
 
 // Namespace is the resolver for the namespace field.
 func (r *queryResolver) Namespace(ctx context.Context, name string) (*model.Namespace, error) {
-	panic(fmt.Errorf("not implemented: Namespace - namespace"))
+	pods, err := r.Pods(ctx, name, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	deployments, err := r.Deployments(ctx, name, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	services, err := r.Services(ctx, name, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.Namespace{
+		Name:        name,
+		Pods:        pods,
+		Deployments: deployments,
+		Services:    services,
+	}, nil
 }
 
 // Pod is the resolver for the pod field.
 func (r *queryResolver) Pod(ctx context.Context, namespace string, name string) (*model.Pod, error) {
-	panic(fmt.Errorf("not implemented: Pod - pod"))
+	pod, err := r.K8sClient.CoreV1().Pods(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	if err != nil {
+		log.Err(err).Str("Namespace", namespace).Msgf("Error getting pod %s", name)
+		return nil, err
+	}
+
+	return util.ConvertPod(*pod), nil
 }
 
 // Pods is the resolver for the pods field.
 func (r *queryResolver) Pods(ctx context.Context, namespace string, labelSelector *string) ([]*model.Pod, error) {
-	panic(fmt.Errorf("not implemented: Pods - pods"))
+	opts := metav1.ListOptions{}
+	if labelSelector != nil {
+		opts.LabelSelector = *labelSelector
+	}
+
+	pods, err := r.K8sClient.CoreV1().Pods(namespace).List(context.TODO(), opts)
+	if err != nil {
+		log.Err(err).Str("Namespace", namespace).Msg("Error listing pods")
+		return nil, err
+	}
+
+	var result []*model.Pod
+	for _, p := range pods.Items {
+		result = append(result, util.ConvertPod(p))
+	}
+	return result, nil
 }
 
 // Deployments is the resolver for the deployments field.
 func (r *queryResolver) Deployments(ctx context.Context, namespace string, labelSelector *string) ([]*model.Deployment, error) {
-	panic(fmt.Errorf("not implemented: Deployments - deployments"))
+	opts := metav1.ListOptions{}
+	if labelSelector != nil {
+		opts.LabelSelector = *labelSelector
+	}
+
+	deploys, err := r.K8sClient.AppsV1().Deployments(namespace).List(context.TODO(), opts)
+	if err != nil {
+		log.Err(err).Str("Namespace", namespace).Msg("Error listing deployments")
+		return nil, err
+	}
+
+	var result []*model.Deployment
+	for _, d := range deploys.Items {
+		result = append(result, util.ConvertDeployment(d))
+	}
+	return result, nil
 }
 
 // Services is the resolver for the services field.
 func (r *queryResolver) Services(ctx context.Context, namespace string, labelSelector *string) ([]*model.Service, error) {
-	panic(fmt.Errorf("not implemented: Services - services"))
+	opts := metav1.ListOptions{}
+	if labelSelector != nil {
+		opts.LabelSelector = *labelSelector
+	}
+
+	services, err := r.K8sClient.CoreV1().Services(namespace).List(context.TODO(), opts)
+	if err != nil {
+		log.Err(err).Str("Namespace", namespace).Msg("Error listing services")
+		return nil, err
+	}
+
+	var result []*model.Service
+	for _, s := range services.Items {
+		result = append(result, util.ConvertService(s))
+	}
+	return result, nil
 }
 
 // Mutation returns MutationResolver implementation.
