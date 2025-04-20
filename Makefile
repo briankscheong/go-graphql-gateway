@@ -106,12 +106,12 @@ add_kubeconfig:
 IMAGE_TAG?=$(shell date +%Y%m%d%H%M%S)
 build_container:
 	@dir_name="$$(basename "$$PWD")"; \
-	@docker build . --tag $$dir_name:$(IMAGE_TAG)
+	docker build . --tag $$dir_name:$(IMAGE_TAG)
 
 run_container:
 	@dir_name="$$(basename "$$PWD")"; \
 	docker build . --tag $$dir_name:$(IMAGE_TAG); \
-	@docker run -it -p 8080:8080 $$dir_name:$(IMAGE_TAG)
+	docker run -it -p 8080:8080 $$dir_name:$(IMAGE_TAG)
 
 # Build image and push to dedicated k3d-managed registry and
 # Update deployment image tag
